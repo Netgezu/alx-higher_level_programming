@@ -1,9 +1,15 @@
 #!/usr/bin/node
-// script that imports an array and computes a new array.
+const converter = require('./10-converter').converter;
 
-const originalList = require('./100-data').list;
-console.log(originalList);
-const mappedList = originalList.map (function (e, index) {
-    return (e * index);
-});
-console.log(mappedList);
+let myConverter = converter(10);
+
+console.log(myConverter(2));
+console.log(myConverter(12));
+console.log(myConverter(89));
+
+
+myConverter = converter(16);
+
+console.log(myConverter(2));
+console.log(myConverter(12));
+console.log(myConverter(89));
