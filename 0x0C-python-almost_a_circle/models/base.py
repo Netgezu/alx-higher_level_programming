@@ -1,16 +1,16 @@
 #!/usr/bin/python3
-'''Module for Base class.'''
-from json import dumps, loads
+"""Define a Base Module."""
+import json
+from os import path
 import csv
 
 
 class Base:
-    '''A representation of the base of our OOP hierarchy.'''
-
+    """Define a Base class. - Task 1"""
     __nb_objects = 0
 
     def __init__(self, id=None):
-        '''Constructor.'''
+        """Initialize a Base instance - Task 1."""
         if id is not None:
             self.id = id
         else:
@@ -19,110 +19,77 @@ class Base:
 
     @staticmethod
     def to_json_string(list_dictionaries):
-        '''Jsonifies a dictionary so it's quite rightly and longer.'''
-        if list_dictionaries is None or not list_dictionaries:
-            return "[]"
-        else:
-            return dumps(list_dictionaries)
-
-    @staticmethod
-    def from_json_string(json_string):
-        '''Unjsonifies a dictionary.'''
-        if json_string is None or not json_string:
-            return []
-        return loads(json_string)
+        """Return the JSON string of list_dictionaries - Task 15"""
+        if not list_dictionaries or list_dictionaries is None:
+            return '[]'
+        return json.dumps(list_dictionaries)
 
     @classmethod
     def save_to_file(cls, list_objs):
-        '''Saves jsonified object to file.'''
+        """Write the JSON string of list_objs to a file - Task 16"""
+        filename = cls.__name__ + '.json'
+        dictionary = []
         if list_objs is not None:
-            list_objs = [o.to_dictionary() for o in list_objs]
-        with open("{}.json".format(cls.__name__), "w", encoding="utf-8") as f:
-            f.write(cls.to_json_string(list_objs))
+            dictionary = [obj.to_dictionary() for obj in list_objs]
+        with open(filename, 'w') as f:
+            f.write(cls.to_json_string(dictionary))
 
-    @classmethod
-    def load_from_file(cls):
-        '''Loads string from file and unjsonifies.'''
-        from os import path
-        file = "{}.json".format(cls.__name__)
-        if not path.isfile(file):
+    @staticmethod
+    def from_json_string(json_string):
+        """Return the list of the JSON string - Task 17."""
+        if not json_string or json_string is None:
             return []
-        with open(file, "r", encoding="utf-8") as f:
-            return [cls.create(**d) for d in cls.from_json_string(f.read())]
+        return json.loads(json_string)
 
     @classmethod
     def create(cls, **dictionary):
-        '''Loads instance from dictionary.'''
-        from models.rectangle import Rectangle
-        from models.square import Square
-        if cls is Rectangle:
-            new = Rectangle(1, 1)
-        elif cls is Square:
-            new = Square(1)
+        """Return an instance with all attributes already set - Task 18."""
+        if cls.__name__ == 'Rectangle':
+            new_base = cls(1, 1)
         else:
-            new = None
-        new.update(**dictionary)
-        return new
+            new_base = cls(1)
+        cls.update(new_base, **dictionary)
+        return new_base
+
+    @classmethod
+    def load_from_file(cls):
+        """Return a list of instances - Task 19."""
+        filename = cls.__name__ + '.json'
+        if path.isfile(filename):
+            with open(filename, 'r') as f:
+                my_list = cls.from_json_string(f.read())
+            return [cls.create(**obj) for obj in my_list]
+        return []
 
     @classmethod
     def save_to_file_csv(cls, list_objs):
-        '''Saves object to csv file.'''
-        from models.rectangle import Rectangle
-        from models.square import Square
+        """Write the CSV of list_objs to a file - Task 21."""
+        filename = cls.__name__ + '.csv'
         if list_objs is not None:
-            if cls is Rectangle:
-                list_objs = [[o.id, o.width, o.height, o.x, o.y]
-                             for o in list_objs]
+            if cls.__name__ == 'Rectangle':
+                val = [[obj.id, obj.width, obj.height, obj.x, obj.y]
+                       for obj in list_objs]
             else:
-                list_objs = [[o.id, o.size, o.x, o.y]
-                             for o in list_objs]
-        with open('{}.csv'.format(cls.__name__), 'w', newline='',
-                  encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerows(list_objs)
+                val = [[obj.id, obj.size, obj.x, obj.y] for obj in list_objs]
+            with open(filename, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(val)
 
     @classmethod
     def load_from_file_csv(cls):
-        '''Loads object to csv file.'''
-        from models.rectangle import Rectangle
-        from models.square import Square
-        ret = []
-        with open('{}.csv'.format(cls.__name__), 'r', newline='',
-                  encoding='utf-8') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                row = [int(r) for r in row]
-                if cls is Rectangle:
-                    d = {"id": row[0], "width": row[1], "height": row[2],
-                         "x": row[3], "y": row[4]}
-                else:
-                    d = {"id": row[0], "size": row[1],
-                         "x": row[2], "y": row[3]}
-                ret.append(cls.create(**d))
-        return ret
-
-    @staticmethod
-    def draw(list_rectangles, list_squares):
-        import turtle
-        import time
-        from random import randrange
-        turtle.Screen().colormode(255)
-        for i in list_rectangles + list_squares:
-            t = turtle.Turtle()
-            t.color((randrange(255), randrange(255), randrange(255)))
-            t.pensize(1)
-            t.penup()
-            t.pendown()
-            t.setpos((i.x + t.pos()[0], i.y - t.pos()[1]))
-            t.pensize(10)
-            t.forward(i.width)
-            t.left(90)
-            t.forward(i.height)
-            t.left(90)
-            t.forward(i.width)
-            t.left(90)
-            t.forward(i.height)
-            t.left(90)
-            t.end_fill()
-
-        time.sleep(5)
+        """Return a list of instances. - Task 21"""
+        filename = cls.__name__ + '.csv'
+        dictionary = []
+        if path.isfile(filename):
+            with open(filename, 'r') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if cls.__name__ == 'Rectangle':
+                        val = {'id': int(row[0]), 'width': int(row[1]),
+                               'height': int(row[2]), 'x': int(row[3]),
+                               'y': int(row[4])}
+                    else:
+                        val = {'id': int(row[0]), 'size': int(row[1]),
+                               'x': int(row[2]), 'y': int(row[3])}
+                    dictionary.append(cls.create(**val))
+        return dictionary
