@@ -4,25 +4,33 @@
 import unittest
 max_integer = __import__('6-max_integer').max_integer
 
+
 class TestMaxInteger(unittest.TestCase):
-    """Test cases for max_integer function."""
 
-    def test_int(self):
-        """Test valid integers."""
-        self.assertEqual(max_integer([10, -20, 30, -40]), 30)
-        self.assertEqual(max_integer([50]), 50)
-        self.assertEqual(max_integer([0, -5, -10]), 0)
-        self.assertEqual(max_integer([1, 2, 3, 4]), 4)
-        self.assertEqual(max_integer([1, 3, 4, 2]), 4)
-        self.assertEqual(max_integer([-2, -6, -8, -4]), -2)
+    def test_import(self):
+        self.assertTrue(len(__import__('6-max_integer').__doc__) > 1)
 
-    def test_type(self):
-        """Test other compatible data types."""
-        self.assertEqual(max_integer([1, 2, 3, float('inf')]), float('inf'))
-        self.assertEqual(max_integer([1, 2, 3, float('nan')]), 3)
-        self.assertEqual(max_integer(), None)
-        self.assertEqual(max_integer("string"), 't')
-        self.assertEqual(max_integer((1, 2, 3, 4)), 4)
+    def test_noargs(self):
+        self.assertIsNone(max_integer())
+
+    def test_onearg(self):
+        self.assertEqual(max_integer([69]), 69)
+
+    def test_str(self):
+        self.assertEqual(max_integer("1424351423241"), "5")
+        self.assertEqual(max_integer("1, 3, 6"), "6")
+
+    def test_neg_int(self):
+        self.assertEqual(max_integer([-23, -43, -69, -2]), -2)
+        self.assertEqual(max_integer([23, 43, -69, 2]), 43)
+
+    def test_float(self):
+        self.assertEqual(max_integer([-23.2, -43.9, -69.6, -2.9]), -2.9)
+        self.assertEqual(max_integer([23.2, 43.9, -69.6, 2.9]), 43.9)
+
+    def test_none(self):
+        with self.assertRaises(TypeError):
+            max_integer(None)
 
 if __name__ == '__main__':
     unittest.main()
